@@ -1,8 +1,7 @@
 #' First, read in the data found in the data folder. 
 
-read.csv('/users/baileycrane/downloads/Bailey DOC_CDOM (3).csv') 
 
-bdc <- read.csv('/users/baileycrane/downloads/Bailey DOC_CDOM (3).csv')
+bdc <- read.csv('./Data/Bailey DOC_CDOM (3).csv')
 
 ##Dependencies 
 install.packages('vegan')
@@ -109,7 +108,7 @@ bdc_AR3$Bacteria.per.mL <- as.numeric(bdc_AR3$Bacteria.per.mL)
 cor_AR3 <- cor.test(bdc_AR3$C..uM., bdc_AR3$Bacteria.per.mL)
 cor_AR3
 
-lm_AR3 <- glm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_AR3)
+lm_AR3 <- lm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_AR3)
 summary(lm_AR3)
 Anova(lm_AR3)
 RsquareAdj(lm_AR3)
@@ -121,7 +120,7 @@ bdc_FB1$Bacteria.per.mL <- as.factor(bdc_FB1$Bacteria.per.mL)
 pairs(~ bdc_FB1$Temp..deg.C. + bdc_FB1$C..uM. + bdc_FB1$CDOM..320.nm. 
       + bdc_FB1$Bacteria.per.mL + bdc_FB1$HNA.Bact, data = bdc_FB1)
 
-lm_FB1 <- glm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_FB1)
+lm_FB1 <- lm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_FB1)
 summary(lm_FB1)
 Anova(lm_FB1)
 RsquareAdj(lm_FB1)
@@ -131,7 +130,7 @@ RsquareAdj(lm_FB1)
 bdc_FC1$Bacteria.per.mL <- as.factor(bdc_FC1$Bacteria.per.mL)
 pairs(~ Temp..deg.C. + Bacteria.per.mL + HNA, data = bdc_FC1)
 
-lm_FC1 <- glm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_FC1)
+lm_FC1 <- lm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_FC1)
 summary(lm_FC1)
 Anova(lm_FC1)
 RsquareAdj(lm_FC1)
@@ -144,7 +143,7 @@ bdc_JIC1$Bacteria.per.mL <- as.factor(bdc_JIC1$Bacteria.per.mL)
 pairs(~ bdc_JIC1$Temp..deg.C. + bdc_JIC1$C..uM. + bdc_JIC1$CDOM..320.nm. 
       + bdc_JIC1$Bacteria.per.mL + bdc_JIC1$HNA.Bact, data = bdc_JIC1)
 
-lm_JIC1 <- glm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_JIC1)
+lm_JIC1 <- lm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L., data = bdc_JIC1)
 summary(lm_JIC1)
 Anova(lm_JIC1)
 RsquareAdj(lm_JIC1)
