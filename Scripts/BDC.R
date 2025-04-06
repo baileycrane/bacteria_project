@@ -24,9 +24,12 @@ head(bdc_sub)
 #'    1. Bacteria per mL (cell count per mL)
 #'    2. HNA% of total community (HNA:Bact)
 
+
 #'Use pairs function to visualize any correlations between variables of interest
 pairs(~ Bacteria.per.mL + HNA.Bact + Temp..deg.C. + 
        C..uM. + Chlor.a..ug.L., data = bdc_sub) 
+
+
 
 #'Further Subset data by Site for site characteristic analyses
 bdc_AR3 <- subset.data.frame(bdc, bdc$Site %in% c("AR3"))
@@ -34,7 +37,11 @@ bdc_FB1 <- subset.data.frame(bdc, bdc$Site %in% c("FB1"))
 bdc_FC1 <- subset.data.frame(bdc, bdc$Site %in% c("FC1"))
 bdc_JIC1 <- subset.data.frame(bdc, bdc$Site %in% c("JIC1"))
 
+
+
 #'Create exploratory graphs for bdc_sub data
+#'
+#Generate graph for total bacteria versus temperatre for all 4 sites
 ggplot(bdc_sub, aes(x = Temp..deg.C., y = Bacteria.per.mL)) +
   geom_point(aes(color = Site)) +  # Add points, color by Site
   geom_smooth(method = lm) +
@@ -44,6 +51,7 @@ ggplot(bdc_sub, aes(x = Temp..deg.C., y = Bacteria.per.mL)) +
   theme_minimal() +  # A clean theme
   theme(legend.position = "top")  # Position the legend at the top
 
+#Generate graph for total bacteria versus DOC content for all 4 sites
 ggplot(bdc_sub, aes(x = C..uM., y = Bacteria.per.mL)) +
   geom_point(aes(color = Site)) +  # Add points, color by Site
   geom_smooth(method = lm) +
@@ -53,6 +61,7 @@ ggplot(bdc_sub, aes(x = C..uM., y = Bacteria.per.mL)) +
   theme_minimal() +  # A clean theme
   theme(legend.position = "top")  # Position the legend at the top
 
+#Generate graph for total bacteria versus CDOM for all 4 sites
 ggplot(bdc_sub, aes(x = CDOM..320.nm., y = Bacteria.per.mL)) +
   geom_point(aes(color = Site)) +  # Add points, color by Site
   geom_smooth(method = lm) +
@@ -63,30 +72,72 @@ ggplot(bdc_sub, aes(x = CDOM..320.nm., y = Bacteria.per.mL)) +
   theme(legend.position = "top")  # Position the legend at the top
 
 
+
 #'Generate linear models for both response variables, use bdc_sub as data
+#'
+#'Generate linear model for response variable bacterial abundance
 lm_bact <- lm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L. + 
                  Site, data = bdc_sub) #assume normal distribution
-summary(lm_bact)
-Anova(lm_bact, tupe = 3)
-RsquareAdj(lm_bact)
+summary(lm_bact) #generate a summary for model variables and significances
+Anova(lm_bact, tupe = 3) #generate a type 3 Anova for model
+RsquareAdj(lm_bact) #display adjusted Rsquare
 
+#'Analyze model predictors and partial residuals of the bact model
+par(mfrow= c(2,2)) #show 4 plots at a time for the termplot
+termplot(lm_bact, se = TRUE, partial.resid = TRUE) #plot individual predictors and
+#their standard error (confidence intervals)
+
+#Generate boxplot for total bacteria site comparison
+ggplot(bdc_sub, aes(x = Site, y = Bacteria.per.mL, fill = Site)) +
+  geom_boxplot(alpha = 0.6) + #manipulate opacity
+  labs(x = "Site", y = "Bacteria per mL") +
+  theme_minimal() +
+  scale_fill_manual(values = c("AR3" = "chocolate1", "FB1" = "firebrick2", "FC1" = "chartreuse2", "JIC1" = "mediumpurple1" ))
+
+#Calculate the confidence intervals for each variable in total bacteria linear model and 
+#use for the Tukey HSD
+confint(lm_bact)
+
+#'Run a Tukey HSD post-hoc analysis to analyze differences in total bacteria counts between sites
+#'
+mod_aov1 <-  aov(Bacteria.per.mL ~  Site, data = bdc_sub) #create an anova between sites for comparison
+TukeyHSD(mod_aov1) #conduct a Tukey Honest Significant Difference (HSD) test on the
+#site comparison anova to determine which groups are significantly different from
+#others
+#no sites are significantly different from others
+
+
+
+
+#'Generate linear model for response variable bacterial activity
 lm_HNA <- lm(HNA.Bact ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L. + 
-                Site, data = bdc_sub)
-summary(lm_HNA)
-Anova(lm_HNA, type = 3)
-RsquareAdj(lm_HNA)
+                Site, data = bdc_sub) #assume normal distribution
+summary(lm_HNA) #generate a summary for the model
+Anova(lm_HNA, type = 3) #generate a type 3 Anova
+RsquareAdj(lm_HNA) #display adjusted Rsquare
 
-par(mfrow= c(2,2))
-termplot(lm_HNA, se = TRUE, partial.resid = TRUE)
+#'Analyze model predictors and partial residuals of the HNA model
+par(mfrow= c(2,2)) #show 4 plots at a time for the termplot
+termplot(lm_HNA, se = TRUE, partial.resid = TRUE) #plot individual predictors and
+#their standard error (confidence intervals)
 
-boxplot(HNA.Bact ~ Site, data = bdc_sub)
+#'Generate a boxplot to compare HNA counts between sites
+ggplot(bdc_sub, aes(x = Site, y = HNA.Bact, fill = Site)) +
+  geom_boxplot(alpha = 0.6) + #manipulate opacity
+  labs(x = "Site", y = "HNA.Bact") +
+  theme_minimal() +
+  scale_fill_manual(values = c("AR3" = "chocolate1", "FB1" = "firebrick2", "FC1" = "chartreuse2", "JIC1" = "mediumpurple1" ))
 
+#'Calculate the confidence intervals for each variable in HNA linear model and 
+#'use for the Tukey HSD
 confint(lm_HNA)
-?TukeyHSD
 
-#'Run a Tukey HSD post-hoc analysis to analyze differences between sites
-mod_aov <-  aov(HNA.Bact ~  Site, data = bdc_sub)
-TukeyHSD(mod_aov) #FC1 significantly different from all other sites
+#'Run a Tukey HSD post-hoc analysis to analyze differences in HNA counts between sites
+#'
+mod_aov2 <-  aov(HNA.Bact ~  Site, data = bdc_sub) #create an anova between sites for comparison
+TukeyHSD(mod_aov2) #conduct a Tukey Honest Significant Difference (HSD) test on the
+#site comparison anova to determine which groups are significantly different from
+#others
 
 ##For the proportion of HNA out of the overall community, Site FC1 was significant
 ##with FC1 having such a high significance that when sites are combined, the variable
@@ -94,10 +145,8 @@ TukeyHSD(mod_aov) #FC1 significantly different from all other sites
 
 
 
-##take out the N and P for these
-
 #'Run Analyses for AR3
-
+#'
 bdc_AR3$Bacteria.per.mL <- as.factor(bdc_AR3$Bacteria.per.mL)
 pairs(~ bdc_AR3$Temp..deg.C. + bdc_AR3$C..uM. + bdc_AR3$CDOM..320.nm. + bdc_AR3$Chlor.a..ug.L. 
       + bdc_AR3$Bacteria.per.mL + bdc_AR3$HNA.Bact, data = bdc_AR3)
