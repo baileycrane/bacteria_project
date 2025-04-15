@@ -1,16 +1,17 @@
-#' First, read in the data found in the data folder. 
-
-
-bdc <- read.csv('./Data/Bailey DOC_CDOM (3).csv')
-
 ##Dependencies 
-install.packages('vegan')
 library(vegan)
 library(car) 
 library(ggplot2)
-install.packages('GGally')
 library(GGally)
 
+#' First, read in the data found in the data folder. 
+
+bdc <- read.csv('./Data/Bailey DOC_CDOM (3).csv')
+
+bdc$Site <- factor(bdc$Site, levels = c("FC1", "AR3", "JIC1", "FB1")) #don't know if I
+#want to do this... may take out
+
+#on partial residuals graph, may want to make by site with st error 
 
 #'Subset data to only include Sites: AR3, FB1, FC1, and JIC1
 bdc_sub <- subset.data.frame(bdc, bdc$Site %in% c("AR3", "FB1", "FC1", "JIC1"))
@@ -44,6 +45,10 @@ bdc_JIC1 <- subset.data.frame(bdc, bdc$Site %in% c("JIC1"))
 #Generate graph for total bacteria versus temperatre for all 4 sites
 ggplot(bdc_sub, aes(x = Temp..deg.C., y = Bacteria.per.mL)) +
   geom_point(aes(color = Site)) +  # Add points, color by Site
+  scale_color_manual(values = c("AR3" = "chocolate1",
+                                "FB1" = "firebrick2",
+                                "FC1" = "chartreuse2",
+                                "JIC1" = "mediumpurple1")) +
   geom_smooth(method = lm) +
   labs(title = "Bacteria per mL vs Temperature",
        x = "Temperature (°C)",  
@@ -54,6 +59,10 @@ ggplot(bdc_sub, aes(x = Temp..deg.C., y = Bacteria.per.mL)) +
 #Generate graph for total bacteria versus DOC content for all 4 sites
 ggplot(bdc_sub, aes(x = C..uM., y = Bacteria.per.mL)) +
   geom_point(aes(color = Site)) +  # Add points, color by Site
+  scale_color_manual(values = c("AR3" = "chocolate1",
+                                "FB1" = "firebrick2",
+                                "FC1" = "chartreuse2",
+                                "JIC1" = "mediumpurple1")) +
   geom_smooth(method = lm) +
   labs(title = "Bacteria per mL vs DOC (uM)",
        x = "DOC (uM)",  
@@ -64,6 +73,10 @@ ggplot(bdc_sub, aes(x = C..uM., y = Bacteria.per.mL)) +
 #Generate graph for total bacteria versus CDOM for all 4 sites
 ggplot(bdc_sub, aes(x = CDOM..320.nm., y = Bacteria.per.mL)) +
   geom_point(aes(color = Site)) +  # Add points, color by Site
+  scale_color_manual(values = c("AR3" = "chocolate1",
+                                "FB1" = "firebrick2",
+                                "FC1" = "chartreuse2",
+                                "JIC1" = "mediumpurple1")) +
   geom_smooth(method = lm) +
   labs(title = "Bacteria per mL vs CDOM (320 nm)",
        x = "CDOM (320 nm)",  
@@ -72,14 +85,13 @@ ggplot(bdc_sub, aes(x = CDOM..320.nm., y = Bacteria.per.mL)) +
   theme(legend.position = "top")  # Position the legend at the top
 
 
-
 #'Generate linear models for both response variables, use bdc_sub as data
 #'
 #'Generate linear model for response variable bacterial abundance
 lm_bact <- lm(Bacteria.per.mL ~ C..uM. + Temp..deg.C. + Chlor.a..ug.L. + 
                  Site, data = bdc_sub) #assume normal distribution
 summary(lm_bact) #generate a summary for model variables and significances
-Anova(lm_bact, tupe = 3) #generate a type 3 Anova for model
+Anova(lm_bact, type = 3) #generate a type 3 Anova for model
 RsquareAdj(lm_bact) #display adjusted Rsquare
 
 #'Analyze model predictors and partial residuals of the bact model
@@ -100,12 +112,11 @@ confint(lm_bact)
 
 #'Run a Tukey HSD post-hoc analysis to analyze differences in total bacteria counts between sites
 #'
-mod_aov1 <-  aov(Bacteria.per.mL ~  Site, data = bdc_sub) #create an anova between sites for comparison
+mod_aov1 <-  aov(Bacteria.per.mL ~  Site, data = bdc_sub) #create an aov between sites for comparison
 TukeyHSD(mod_aov1) #conduct a Tukey Honest Significant Difference (HSD) test on the
 #site comparison anova to determine which groups are significantly different from
 #others
 #no sites are significantly different from others
-
 
 
 
